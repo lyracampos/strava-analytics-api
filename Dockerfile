@@ -1,19 +1,17 @@
-FROM golang:1.22.2 AS build
+FROM golang:1.22.2-alpine AS build
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY *.go ./
-RUN CGO_ENABLED=0 GOOS=linux go build -o /strava-analytics-api
+COPY . .
+RUN go build -o ./strava-analytics-api ./
 
 FROM alpine
+COPY --from=build /app/strava-analytics-api /usr/local/bin/app
+COPY --from=build /app/config /config
 
-WORKDIR /
-
-COPY --from=build /strava-analytics-api /strava-analytics-api
+ENTRYPOINT ["app", "-c", "/config/config.yaml"]
 
 EXPOSE 8080
-
-ENTRYPOINT [ "/strava-analytics-api" ]
