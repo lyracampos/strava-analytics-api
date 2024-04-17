@@ -24,7 +24,7 @@ func TestHealthZ(t *testing.T) {
 	}
 
 	obtainedBody := responseWriter.Body.String()
-	expectedBody := "api is running"
+	expectedBody := "api v3 is running"
 
 	if obtainedBody != expectedBody {
 		t.Errorf("handler returned unexpected body: got %v want %v", obtainedBody, expectedBody)
