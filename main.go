@@ -12,6 +12,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lyracampos/strava-analytics-api/config"
+	"github.com/lyracampos/strava-analytics-api/controller"
 )
 
 const defaultConfigFilePath = "./config/config.yaml"
@@ -34,7 +35,9 @@ func run() error {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/healthz", HealthZ).Methods(http.MethodGet)
+	router.HandleFunc("/healthz", controller.HealthZ).Methods(http.MethodGet)
+
+	router.HandleFunc("/activities", controller.Activities).Methods(http.MethodGet)
 
 	address := fmt.Sprintf("%s:%d", config.API.Host, config.API.Port)
 
