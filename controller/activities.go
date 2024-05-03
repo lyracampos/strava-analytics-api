@@ -1,15 +1,30 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/lyracampos/strava-analytics-api/entities"
+	"github.com/lyracampos/strava-analytics-api/infra"
 )
 
+// receber access token pelo header - OK
+// salvar o bearer no context do request - OK
+type key string
+
+const accessToken = key("token")
+
 func Activities(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	authorization := r.Header.Get("authorization")
+	if authorization != "" {
+		authorizationBearer := strings.Split(authorization, " ")
+		ctx = context.WithValue(ctx, accessToken, authorizationBearer[1])
+	}
 	var after time.Time
 	var err error
 	if r.URL.Query().Get("start") != "" {
@@ -35,13 +50,13 @@ func Activities(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	listParams := entities.ListParams{
+	listParams := infra.ListParams{
 		Page:    1,
 		PerPage: 100,
 		After:   after,
 		Before:  before,
 	}
-	activities, err := entities.List(listParams)
+	activities, err := entities.List(ctx, listParams)
 	if err != nil {
 		log.Printf("erro ao listar atividades")
 	}
