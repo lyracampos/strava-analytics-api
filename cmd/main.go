@@ -12,10 +12,14 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lyracampos/strava-analytics-api/config"
-	"github.com/lyracampos/strava-analytics-api/controller"
+	"github.com/lyracampos/strava-analytics-api/internal/api"
+	"github.com/lyracampos/strava-analytics-api/internal/api/middlewares"
+	"github.com/lyracampos/strava-analytics-api/internal/infrastructure"
+	"github.com/lyracampos/strava-analytics-api/internal/usecases"
+	"go.uber.org/zap"
 )
 
-const defaultConfigFilePath = "./config/config.yaml"
+const defaultConfigFilePath = "../config/config.yaml"
 
 func main() {
 	if err := run(); err != nil {
@@ -34,10 +38,23 @@ func run() error {
 		return fmt.Errorf("failed to build config: %w", err)
 	}
 
-	router := mux.NewRouter()
-	router.HandleFunc("/healthz", controller.HealthZ).Methods(http.MethodGet)
+	logger, err := zap.NewProduction()
+	if err != nil {
+		return fmt.Errorf("erro ao inicializar o log da aplicação")
+	}
 
-	router.HandleFunc("/activities", controller.Activities).Methods(http.MethodGet)
+	sugar := logger.Sugar()
+
+	router := mux.NewRouter()
+	router.HandleFunc("/healthz", api.HealthZ).Methods(http.MethodGet)
+
+	stravaGateway := infrastructure.NewStravaHTTP()
+	listActiviesUseCase := usecases.NewListActiviesUseCase(stravaGateway)
+	activiesHandler := api.NewActivitiesHandler(sugar, *listActiviesUseCase)
+
+	authenticatedRouter := router.Methods(http.MethodGet).Subrouter()
+	authenticatedRouter.Use(middlewares.AuthenticationMiddleware)
+	authenticatedRouter.HandleFunc("/activities", activiesHandler.ListActivities)
 
 	address := fmt.Sprintf("%s:%d", config.API.Host, config.API.Port)
 

@@ -4,7 +4,7 @@ build:
 	go build ./...
 
 run:
-	go run ./...
+	go run ./... -c ./config/config.yaml
 
 test:
 	go test ./... -v -cover
