@@ -6,7 +6,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go build -o ./strava-analytics-api ./
+RUN go build -o ./strava-analytics-api ./cmd
 
 FROM alpine
 COPY --from=build /app/strava-analytics-api /usr/local/bin/app
