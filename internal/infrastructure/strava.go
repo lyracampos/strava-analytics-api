@@ -33,7 +33,7 @@ func (g *stravaHTTP) ListActivities(ctx context.Context, input contracts.ListInp
 	}
 	token := ctx.Value("token")
 	if token == nil {
-		token = "f93b98c6fd851414f9315f83a1f5550e0f598670"
+		token = "ea05d9b82d816a42580b727fad6767f66e287ed5"
 	}
 	bearerToken := fmt.Sprintf("Bearer %s", token)
 	req.Header.Add(
