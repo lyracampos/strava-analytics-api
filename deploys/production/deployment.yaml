@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strava-analytics-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: strava-analytics-api
+  template:
+    metadata:
+      name: strava-analytics-api
+      labels:
+        app: strava-analytics-api
+    spec:
+      containers:
+        - name: strava-analytics-api
+          image: guilhermelyracampos/strava-analytics-api:v0.0.8
+          ports:
+            - containerPort: 8080

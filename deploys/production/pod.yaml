@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: strava-analytics-api
+spec:
+  containers:
+  - name: strava-analytics-api
+    image: guilhermelyracampos/strava-analytics-api:v0.0.8
+    ports:
+    - containerPort: 8080
